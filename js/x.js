@@ -12,6 +12,14 @@ var _x_ = {
 
     },
 
+    crypto: {
+
+        uuid: require('./uuid.js'),
+
+    },
+
+    service: require('./service.js'),
+
 };
 
 module.exports = _x_;

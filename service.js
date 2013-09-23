@@ -14,11 +14,19 @@ var server = {
     handlers: {
         onRequest: function (request, response){
             console.log('Request: ' + request.url);
-            server.router(request, response);
+            server.router(server.createPackage(request, response));
         },
     },
 
     router: require('./js/router.js'),
+
+    createPackage: function(request, response){
+        return {
+            request: request,
+            response: response,
+            output: x.io.output.outputCreator(response),
+        };
+    },
 
 };
 

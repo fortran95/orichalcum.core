@@ -7,7 +7,7 @@ module.exports = {
             if(this._queue[type][queueName] == undefined)
                 this._queue[type][queueName] = [value, ];
             else
-                this._queue[type][queueName].append(value);
+                this._queue[type][queueName].push(value);
         else
             if(this._queue[type][queueName] == undefined)
                 return null;
