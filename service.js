@@ -22,15 +22,31 @@ var server = {
 
     createPackage: function(request, response){
         request.fullContent = '';
-        request.on('data', function(chunk){
-            request.fullContent += chunk;
-            console.log(request.fullContent);
-        });
+        request.parsedFullContent = null;
+
+        if(request.method == 'POST'){
+            request.on('data', function(chunk){
+                request.fullContent += chunk;
+                if(request.fullContent.length > 102400)
+                    request.connection.destory();
+            });
+            request.on('end', function(){
+                request.parsedFullContent = 
+                    x.string.query.parse(request.fullContent);
+            });
+        }
 
         return {
             request: request,
             response: response,
             output: x.io.output.outputCreator(response),
+            
+            onPosted: function(callback){
+                if(request.parsedFullContent != null)
+                    callback();
+                else
+                    request.on('end', callback);
+            },
         };
     },
 

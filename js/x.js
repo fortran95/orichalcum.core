@@ -20,6 +20,12 @@ var _x_ = {
 
     service: require('./service.js'),
 
+    string: {
+
+        query: require('querystring'),
+
+    },
+
 };
 
 module.exports = _x_;

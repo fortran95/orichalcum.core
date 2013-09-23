@@ -2,6 +2,8 @@ function xmpp(uuid){
     return {
         
         login: function(jid, password){
+            console.log('jid: ' + jid);
+            console.log('password: ' + password);
         },
 
     }
@@ -14,8 +16,10 @@ module.exports = {
     },
 
     command: function(e, cmds){
-        if(cmds[0] == undefined)
+        if(cmds[0] == undefined){
             e.output.error();
+            return;
+        }
 
         switch(cmds[0].toLowerCase()){
             case 'xmpp':
@@ -30,13 +34,15 @@ module.exports = {
     xmpp: {
         
         command: function(e, cmds){
-            if(cmds[0] == undefined)
+            if(cmds[0] == undefined){
                 e.output.error();
+                return;
+            }
 
             switch(cmds[0].toLowerCase()){
                 case 'add':
                     var newuuid = x.crypto.uuid();
-                    x.service.list.xmpp[newuuid] = xmpp(newuuid);
+                    x.service.list.xmpp[newuuid] = new xmpp(newuuid);
                     e.output.write(newuuid);
                     break;
                 default:
@@ -49,7 +55,28 @@ module.exports = {
         },
 
         manage: function(e, uuid, cmds){
-            e.output.write('Hit: ' + uuid);
+            var manageTarget = x.service.list.xmpp[uuid];
+            if(cmds[0] == undefined){
+                e.output.write('HIT a client. Here shall be the overview.');
+                return;
+            }
+
+            switch(cmds[0].toLowerCase()){
+                case 'login':
+                    if(e.request.method == 'POST'){
+                        function sequence(){
+                            var jid = e.request.parsedFullContent.jid;
+                            var pwd = e.request.parsedFullContent.password;
+                            manageTarget.login(jid, pwd);
+                            e.output.write('Asked client to login.');
+                        }
+                        e.onPosted(sequence);
+                    } else
+                        e.output.error();
+                    break;
+                default:
+                    break;
+            }
         },
 
     },
