@@ -1,19 +1,11 @@
-var queue = {
-    send: [],
-    receive: [],
-};
-
-var services = [];
-
+x = require('./js/x.js');
 
 var server = {
 
     _server: null,
 
     init: function(){
-        server._server = require('http').createServer();
-        server._server.on(
-            'request',
+        server._server = require('http').createServer(
             server.handlers.onRequest
         );
         server._server.listen(8000);
@@ -21,9 +13,12 @@ var server = {
 
     handlers: {
         onRequest: function (request, response){
-            response.end(request.url);
+            console.log('Request: ' + request.url);
+            server.router(request, response);
         },
     },
+
+    router: require('./js/router.js'),
 
 };
 
