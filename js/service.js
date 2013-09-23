@@ -1,9 +1,50 @@
 function xmpp(uuid){
     return {
+
+        client: null,
         
         login: function(jid, password){
-            console.log('jid: ' + jid);
-            console.log('password: ' + password);
+            this.client =
+                new x.communication_modules.xmpp.Client({
+                    jid: jid,
+                    password: password,
+                })
+            ;
+            this.client.on('online', this.handlers.onOnline);
+            this.client.on('stanza', this.handlers.onStanza);
+        },
+
+        handlers: {
+
+            onOnline: function(){
+                var me = x.service.list.xmpp[uuid];
+                me.client
+                    .send(
+                        new x.communication_modules.xmpp
+                            .Element('presence', { })
+                            .c('show')
+                            .t('chat')
+                            .up()
+                            .c('status')
+                            .t('THIS IS THE ECHOBOT FROM ORICHALCUM.CORE!')
+                    )
+                ;
+            },
+
+            onStanza: function(stanza){
+                var me = x.service.list.xmpp[uuid];
+                if(
+                    stanza.is('message') &&
+                    stanza.attrs.type !== 'error'   // Important: never reply to errors!
+                ){
+                    // Swap addresses...
+                    stanza.attrs.to = stanza.attrs.from;
+                    delete stanza.attrs.from;
+                    // and send back.
+                    me.client.send(stanza);
+                }
+            }
+
         },
 
     }

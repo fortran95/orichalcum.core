@@ -26,6 +26,12 @@ var _x_ = {
 
     },
 
+    communication_modules: {
+
+        xmpp: require('node-xmpp'),
+
+    },
+
 };
 
 module.exports = _x_;
