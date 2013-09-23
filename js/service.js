@@ -39,15 +39,17 @@ module.exports = {
                     x.service.list.xmpp[newuuid] = xmpp(newuuid);
                     e.output.write(newuuid);
                     break;
-                case 'login':
-                    break;
                 default:
                     if(x.service.list.xmpp[cmds[0]] != undefined){
-                        e.output.write('Hit');
+                        this.manage(e, cmds[0], cmds.slice(1));
                     } else
                         e.output.error();
                     break;
             }
+        },
+
+        manage: function(e, uuid, cmds){
+            e.output.write('Hit: ' + uuid);
         },
 
     },
