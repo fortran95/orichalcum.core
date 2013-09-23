@@ -5,7 +5,7 @@ module.exports = function(e){
             x.service.command(e, breaked.slice(2))
             break;
         default:
-            x.io.output.error(e);
+            e.output.error();
             break;
     }
 };
