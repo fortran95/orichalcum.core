@@ -21,6 +21,12 @@ var server = {
     router: require('./js/router.js'),
 
     createPackage: function(request, response){
+        request.fullContent = '';
+        request.on('data', function(chunk){
+            request.fullContent += chunk;
+            console.log(request.fullContent);
+        });
+
         return {
             request: request,
             response: response,
