@@ -8,8 +8,12 @@ module.exports = function(e){
             x.interface.command(e, breaked.slice(2).join('/'));
             break;
         default:
-            //TODO unrecognized query redirect to /interface.
-            e.output.error();
+            e.output.redirectPermanent(
+                x.string.url.resolve(
+                    'interface/',
+                    breaked.slice(1).join('/')
+                )
+            );
             break;
     }
 };

@@ -26,4 +26,9 @@ module.exports = function(resp){
     this.w200text = function(content){
         self.write(content, 200, {'Content-Type': 'text/plain'});
     };
+
+    this.redirectPermanent = function(destination){
+        resp.writeHead(307, {'Location': destination});
+        resp.end();
+    };
 };
