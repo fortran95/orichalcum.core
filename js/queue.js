@@ -1,26 +1,25 @@
-module.exports = {
-    
-    _queue: [{}, {}],
+module.exports = function(){
+    var self = this;
+    x.nodejs.events.EventEmitter.call(this);
 
-    _queueOperate: function(type, queueName, value){
-        if(value != undefined)
-            if(this._queue[type][queueName] == undefined)
-                this._queue[type][queueName] = [value, ];
-            else
-                this._queue[type][queueName].push(value);
-        else
-            if(this._queue[type][queueName] == undefined)
-                return null;
-            else
-                return this._queue[type][queueName].pop();
-    },
+    this._queue = {
+        'send': [], 
+        'receive': []
+    };
 
-    send: function(serviceName, value){
-        return this._queueOperate(0, serviceName, value);
-    },
+    this._queueOperate = function(type, value){
+        if(value != undefined){
+            self.emit(type);
+            self._queue[type].push(value);
+        } else
+            return self._queue[type].pop();
+    };
 
-    receive: function(serviceName, value){
-        return this._queueOperate(1, serviceName, value);
-    },
+    this.send = function(value){
+        return self._queueOperate('send', value);
+    };
 
+    this.receive = function(value){
+        return this._queueOperate('receive', value);
+    };
 };

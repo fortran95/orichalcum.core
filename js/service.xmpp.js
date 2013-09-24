@@ -5,10 +5,8 @@ module.exports = {
             return;
         }
 
-        var jidInput = cmds[0].trim().split('@');
         var jid = new x.communication_modules.xmpp.JID(
-            jidInput[0],
-            jidInput[1]
+            cmds[0].trim()
         ).bare().toString();
 
         this.manage(e, jid, cmds.slice(1));

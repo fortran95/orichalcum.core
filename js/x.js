@@ -1,4 +1,10 @@
 var _x_ = {
+
+    nodejs: {
+
+        events: require('events'),
+
+    },
     
     storage: {
 
