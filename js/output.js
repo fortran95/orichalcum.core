@@ -3,6 +3,12 @@ module.exports = {
     outputCreator: function(resp){
         return {
             write: function(content){
+                resp.writeHead(
+                    200,
+                    {
+                        'Content-Type': 'text/plain',
+                    }
+                );
                 resp.end(content);
             },
 
