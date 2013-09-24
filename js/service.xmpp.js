@@ -38,6 +38,7 @@ module.exports = {
                     e.output.error();
                 break;
             default:
+                e.output.write('Unrecognized operand for this client.');
                 break;
         }
     },
@@ -62,8 +63,7 @@ module.exports = {
         this.handlers = {
 
             onOnline: function(){
-                var me = x.service.list.xmpp[jid];
-                me.client
+                self.client
                     .send(
                         new x.communication_modules.xmpp
                             .Element('presence', { })
@@ -77,7 +77,6 @@ module.exports = {
             },
 
             onStanza: function(stanza){
-                var me = x.service.list.xmpp[jid];
                 if(
                     stanza.is('message') &&
                     stanza.attrs.type !== 'error'   // Important: never reply to errors!
@@ -89,12 +88,12 @@ module.exports = {
                     stanza.attrs.to = stanza.attrs.from;
                     delete stanza.attrs.from;
                     // and send back.
-                    me.client.send(stanza);
+                    self.client.send(stanza);
                 }
             },
 
             onError: function(e){
-                console.log(e.condition);
+                console.log(e);
             },
         }; // handlers: ...
     },  // factory: ...
