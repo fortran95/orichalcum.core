@@ -1,7 +1,8 @@
 module.exports = {
 
-    command: function(e){
-        e.output.write('ok, i known.');
+    command: function(e, url){
+        var parsedURL = x.string.url.parse(url);
+        e.output.write(parsedURL.pathname);
     },
 
 };

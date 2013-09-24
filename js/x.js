@@ -25,10 +25,12 @@ var _x_ = {
     },
 
     service: require('./service.js'),
+    interface: require('./interface.js'),
 
     string: {
 
         query: require('querystring'),
+        url: require('url'),
 
     },
 
