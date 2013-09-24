@@ -16,18 +16,28 @@ module.exports = {
             return;
         }
 
+        var extname = x.string.path.extname(pathname);
+        var outputMethod = '';
+        for(var suggested in this.config.contentTypes){
+            if(this.config.contentTypes[suggested].indexOf(extname) >= 0){
+                outputMethod = suggested;
+                break;
+            }
+        }
+        if(outputMethod == '') outputMethod = 'w200text';
+
         x.io.fileSystem.readFile(filePath, function(err, data){
             if(err)
                 e.output.write('Access Error.');
             else
-                e.output.write(data);
+                e.output[outputMethod](data);
         });
     },
 
     config: {
         
         contentTypes: {
-            'text/html': ['.html', '.htm'],
+            'w200html': ['.html', '.htm'],
         },
 
     },
