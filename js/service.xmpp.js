@@ -9,23 +9,25 @@ module.exports = {
             cmds[0].trim()
         ).bare().toString();
 
+        // TODO verify jid, if not valid, do not call 'manage'.
+
         this.manage(e, jid, cmds.slice(1));
     },
 
     manage: function(e, jid, cmds){
         var manageTarget = x.service.list.xmpp[jid];
-
-        if(cmds[0] == undefined){
-            e.output.write('HIT a client. Here shall be the overview.');
-            return;
-        }
+        var operand = cmds[0];
+        if(operand)
+            operand = operand.toLowerCase();
+        else
+            operand = '';
 
         if(manageTarget == undefined){
             manageTarget = new this.factory(jid);
             x.service.list.xmpp[jid] = manageTarget;
         }
 
-        switch(cmds[0].toLowerCase()){
+        switch(operand){
             case 'login':
                 if(e.request.method == 'POST'){
                     function sequence(){
@@ -38,15 +40,38 @@ module.exports = {
                     e.output.error();
                 break;
             default:
-                e.output.write('Unrecognized operand for this client.');
+                e.output.write(
+                    JSON.stringify({
+                        'jid': jid,
+                        'client': {
+                            'status': manageTarget.clientStatus(),
+                        },
+                    })
+                );
                 break;
         }
+
     },
 
     factory: function(jid){
         var self = this;
 
         this.client = null;
+        
+        this.clientStatus = function(){
+            /* see <https://github.com/astro/node-xmpp/blob/master/lib/xmpp/client.js> */
+            if(self.client)
+                return {
+                    0: 'PREAUTH',
+                    1: 'AUTH',
+                    2: 'AUTHED',
+                    3: 'BIND',
+                    4: 'SESSION',
+                    5: 'ONLINE',
+                }[self.client.state];
+            else
+                return 'PREAUTH';
+        };
             
         this.login = function(password){
             self.client =
