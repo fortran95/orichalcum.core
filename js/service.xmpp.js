@@ -58,13 +58,11 @@ module.exports = {
                 ;
                 this.client.on('online', this.handlers.onOnline);
                 this.client.on('stanza', this.handlers.onStanza);
-                console.log('Login using [' + jid + '] with password [' + password + ']');
             },
 
             handlers: {
 
                 onOnline: function(){
-                    console.log('[' + jid + ']XMPP Online. Sending Presence.');
                     var me = x.service.list.xmpp[jid];
                     me.client
                         .send(
