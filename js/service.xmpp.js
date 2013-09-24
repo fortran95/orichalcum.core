@@ -39,6 +39,10 @@ module.exports = {
                 } else
                     e.output.error();
                 break;
+            case 'logout':
+                manageTarget.logout();
+                e.output.write('Asked Client to logout.');
+                break;
             default:
                 e.output.write(
                     JSON.stringify({
@@ -58,10 +62,11 @@ module.exports = {
 
         this.client = null;
         
-        this.clientStatus = function(){
+        this.clientStatus = function(v){
             /* see <https://github.com/astro/node-xmpp/blob/master/lib/xmpp/client.js> */
+            var res = 'PREAUTH';
             if(self.client)
-                return {
+                res = {
                     0: 'PREAUTH',
                     1: 'AUTH',
                     2: 'AUTHED',
@@ -69,11 +74,27 @@ module.exports = {
                     4: 'SESSION',
                     5: 'ONLINE',
                 }[self.client.state];
+
+            if(v == undefined)
+                return res;
             else
-                return 'PREAUTH';
+                return res == v || self.client.state == v;
         };
-            
+
+        this.loggedIn = function(){
+            if(self.client)
+                return self.client.state >= 2;
+            return false;
+        };
+
+        this.logout = function(){
+            if(!self.loggedIn()) return;
+            self.client.end();
+        };
+
         this.login = function(password){
+            if(self.loggedIn()) return;
+
             self.client =
                 new x.communication_modules.xmpp.Client({
                     jid: jid,
@@ -119,6 +140,18 @@ module.exports = {
 
             onError: function(e){
                 console.log(e);
+                if(self.clientStatus('AUTH')){
+                    // Login failure. Attach self destory sequence.
+                    self.client.on(
+                        'close',
+                        function(){
+                            self.client = null;
+                            console.log('SELF DESTORYED.');
+                        }
+                    );
+                    console.log('Detected failed login. End connection.');
+                    self.client.end();
+                }
             },
         }; // handlers: ...
     },  // factory: ...
