@@ -58,6 +58,7 @@ module.exports = {
                 ;
                 this.client.on('online', this.handlers.onOnline);
                 this.client.on('stanza', this.handlers.onStanza);
+                this.client.on('error', this.handlers.onError);
             },
 
             handlers: {
@@ -83,13 +84,20 @@ module.exports = {
                         stanza.is('message') &&
                         stanza.attrs.type !== 'error'   // Important: never reply to errors!
                     ){
+                        var body = stanza.getChild('body');
+                        if(body != undefined)
+                            console.log(body.children.join(''));
                         // Swap addresses...
                         stanza.attrs.to = stanza.attrs.from;
                         delete stanza.attrs.from;
                         // and send back.
                         me.client.send(stanza);
                     }
-                }
+                },
+
+                onError: function(e){
+                    console.log(e.condition);
+                },
 
             }, // handlers: ...
 
