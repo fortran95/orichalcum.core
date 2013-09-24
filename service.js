@@ -39,7 +39,7 @@ var server = {
         return {
             request: request,
             response: response,
-            output: x.io.output.outputCreator(response),
+            output: new x.io.output(response),
             
             onPosted: function(callback){
                 if(request.parsedFullContent != null)

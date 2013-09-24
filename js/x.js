@@ -15,6 +15,7 @@ var _x_ = {
     io: {
 
         output: require('./output.js'),
+        fileSystem: require('fs'),
 
     },
 
@@ -31,6 +32,7 @@ var _x_ = {
 
         query: require('querystring'),
         url: require('url'),
+        path: require('path'),
 
     },
 
