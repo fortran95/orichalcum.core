@@ -43,63 +43,61 @@ module.exports = {
     },
 
     factory: function(jid){
-        return {
+        var self = this;
 
-            client: null,
+        this.client = null;
             
-            login: function(password){
-                this.client =
-                    new x.communication_modules.xmpp.Client({
-                        jid: jid,
-                        password: password,
-                    })
+        this.login = function(password){
+            self.client =
+                new x.communication_modules.xmpp.Client({
+                    jid: jid,
+                    password: password,
+                })
+            ;
+            self.client.on('online', self.handlers.onOnline);
+            self.client.on('stanza', self.handlers.onStanza);
+            self.client.on('error', self.handlers.onError);
+        };
+
+        this.handlers = {
+
+            onOnline: function(){
+                var me = x.service.list.xmpp[jid];
+                me.client
+                    .send(
+                        new x.communication_modules.xmpp
+                            .Element('presence', { })
+                            .c('show')
+                            .t('chat')
+                            .up()
+                            .c('status')
+                            .t('THIS IS THE ECHOBOT FROM ORICHALCUM.CORE!')
+                    )
                 ;
-                this.client.on('online', this.handlers.onOnline);
-                this.client.on('stanza', this.handlers.onStanza);
-                this.client.on('error', this.handlers.onError);
             },
 
-            handlers: {
+            onStanza: function(stanza){
+                var me = x.service.list.xmpp[jid];
+                if(
+                    stanza.is('message') &&
+                    stanza.attrs.type !== 'error'   // Important: never reply to errors!
+                ){
+                    var body = stanza.getChild('body');
+                    if(body != undefined)
+                        console.log(body.children.join(''));
+                    // Swap addresses...
+                    stanza.attrs.to = stanza.attrs.from;
+                    delete stanza.attrs.from;
+                    // and send back.
+                    me.client.send(stanza);
+                }
+            },
 
-                onOnline: function(){
-                    var me = x.service.list.xmpp[jid];
-                    me.client
-                        .send(
-                            new x.communication_modules.xmpp
-                                .Element('presence', { })
-                                .c('show')
-                                .t('chat')
-                                .up()
-                                .c('status')
-                                .t('THIS IS THE ECHOBOT FROM ORICHALCUM.CORE!')
-                        )
-                    ;
-                },
-
-                onStanza: function(stanza){
-                    var me = x.service.list.xmpp[jid];
-                    if(
-                        stanza.is('message') &&
-                        stanza.attrs.type !== 'error'   // Important: never reply to errors!
-                    ){
-                        var body = stanza.getChild('body');
-                        if(body != undefined)
-                            console.log(body.children.join(''));
-                        // Swap addresses...
-                        stanza.attrs.to = stanza.attrs.from;
-                        delete stanza.attrs.from;
-                        // and send back.
-                        me.client.send(stanza);
-                    }
-                },
-
-                onError: function(e){
-                    console.log(e.condition);
-                },
-
-            }, // handlers: ...
-
-        }; // return ..
-
+            onError: function(e){
+                console.log(e.condition);
+            },
+        }; // handlers: ...
     },  // factory: ...
+
+
 }
