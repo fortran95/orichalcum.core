@@ -12,7 +12,7 @@ module.exports = {
         );
 
         if(filePath.indexOf(x.string.path.resolve('.')) != 0){
-            e.output.write('Access Denied.');
+            e.output.w401();
             return;
         }
 
@@ -24,11 +24,11 @@ module.exports = {
                 break;
             }
         }
-        if(outputMethod == '') outputMethod = 'w200text';
+        if(outputMethod == '') outputMethod = 'w200';
 
         x.io.fileSystem.readFile(filePath, function(err, data){
             if(err)
-                e.output.write('Access Error.');
+                e.output.w404();
             else
                 e.output[outputMethod](data);
         });
@@ -38,6 +38,7 @@ module.exports = {
         
         contentTypes: {
             'w200html': ['.html', '.htm'],
+            'w200': ['.ico'],
         },
 
     },
