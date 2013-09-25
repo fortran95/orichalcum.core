@@ -32,8 +32,11 @@ module.exports = {
                 if(e.request.method == 'POST'){
                     function sequence(){
                         var pwd = e.request.parsedFullContent.password;
-                        manageTarget.login(pwd);
-                        e.output.write('Asked client to login.');
+                        var result = manageTarget.login(pwd);
+                        if(result)
+                            e.output.w202('Asked client to login.');
+                        else
+                            e.output.w406('Client refused to login.');
                     }
                     e.onPosted(sequence);
                 } else
@@ -41,10 +44,10 @@ module.exports = {
                 break;
             case 'logout':
                 manageTarget.logout();
-                e.output.write('Asked Client to logout.');
+                e.output.w202('Asked Client to logout.');
                 break;
             default:
-                e.output.write(
+                e.output.w200(
                     JSON.stringify({
                         'jid': jid,
                         'client': {
@@ -93,7 +96,7 @@ module.exports = {
         };
 
         this.login = function(password){
-            if(self.loggedIn()) return;
+            if(self.loggedIn() || password == undefined) return false;
 
             self.client =
                 new x.communication_modules.xmpp.Client({
@@ -104,6 +107,8 @@ module.exports = {
             self.client.on('online', self.handlers.onOnline);
             self.client.on('stanza', self.handlers.onStanza);
             self.client.on('error', self.handlers.onError);
+
+            return true;
         };
 
         this.handlers = {
