@@ -77,10 +77,12 @@ var xmppPanel = function(){
                                             news.client.status
                                         )
                                     )
+                                    .css('vertical-align', 'middle')
                             )
                             .append(
                                 $('<td>', {name: 'jid'})
                                     .text(news.jid)
+                                    .css('vertical-align', 'middle')
                             )
                             .append(
                                 $('<td>', {name: 'password'})
