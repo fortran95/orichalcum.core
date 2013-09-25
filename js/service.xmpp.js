@@ -1,17 +1,22 @@
 module.exports = {
     command: function(e, cmds){
-        if(cmds[0] == undefined){
-            e.output.error();
-            return;
+        var barJID = null;
+        if(cmds[0] != undefined)
+            barJID = cmds[0].trim();
+
+        if(barJID){
+            // TODO verify jid, if not valid, do not call 'manage'.
+            var jid = new x.communication_modules.xmpp.JID(
+                barJID
+            ).bare().toString();
+            this.manage(e, jid, cmds.slice(1));
+        } else {
+            var report = {};
+            for(var jid in x.service.list.xmpp)
+                report[jid] = x.service.list.xmpp[jid].report();
+            e.output.w200(JSON.stringify(report));
         }
 
-        var jid = new x.communication_modules.xmpp.JID(
-            cmds[0].trim()
-        ).bare().toString();
-
-        // TODO verify jid, if not valid, do not call 'manage'.
-
-        this.manage(e, jid, cmds.slice(1));
     },
 
     manage: function(e, jid, cmds){
@@ -66,12 +71,7 @@ module.exports = {
                 break;
             default:
                 e.output.w200(
-                    JSON.stringify({
-                        'jid': jid,
-                        'client': {
-                            'status': manageTarget.clientStatus(),
-                        },
-                    })
+                    JSON.stringify(manageTarget.report())
                 );
                 break;
         }
@@ -100,6 +100,15 @@ module.exports = {
                 return res;
             else
                 return res == v || self.client.state == v;
+        };
+
+        this.report = function(){
+            return {
+                'jid': jid,
+                'client': {
+                    'status': self.clientStatus(),
+                },
+            };
         };
 
         this.loggedIn = function(){
