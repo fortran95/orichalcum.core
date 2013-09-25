@@ -1,8 +1,6 @@
 var functions = {
 
-    xmpp_login: function(){
-        var jid = $('#xmpp-controller [name="jid"]').val();
-        var pwd = $('#xmpp-controller [name="password"]').val();
+    xmpp_login: function(jid, pwd){
         $.ajax({
             type: "POST",
             url: '../service/xmpp/' + jid + '/login',
@@ -14,8 +12,7 @@ var functions = {
         });
     },
 
-    xmpp_logout: function(){
-        var jid = $('#xmpp-controller [name="jid"]').val();
+    xmpp_logout: function(jid){
         $.ajax({
             type: "GET",
             url: '../service/xmpp/' + jid + '/logout',
@@ -28,12 +25,3 @@ var functions = {
 
 };
 
-$(function(){
-    $('#xmpp-controller button[name="login"]').click(
-        functions.xmpp_login
-    );
-
-    $('#xmpp-controller button[name="logout"]').click(
-        functions.xmpp_logout
-    );
-});
