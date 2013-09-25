@@ -9,10 +9,8 @@ module.exports = function(e){
             break;
         default:
             e.output.redirectPermanent(
-                x.string.url.resolve(
-                    'interface/',
-                    breaked.slice(1).join('/')
-                )
+                '/interface/' +
+                breaked.slice(1).join('/')
             );
             break;
     }
