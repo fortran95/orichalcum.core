@@ -48,22 +48,58 @@ var xmppPanel = function(){
             var jids = [];
             for(var jid in data){
                 jids.push(jid);
-                var corresponding = tbody.find('tr[data-jid="' + jid + '"]');
-                if(corresponding.length < 1){
+                var cor = tbody.find('tr[data-jid="' + jid + '"]');
+                var news = data[jid];
+                if(cor.length < 1){
                     tbody.prepend(
                         $('<tr>', {'data-jid': jid})
                             .append(
                                 $('<td>', {name: 'status'})
-                                    .text(data[jid].client.status)
+                                    .text(news.client.status)
                             )
                             .append(
                                 $('<td>', {name: 'jid'})
-                                    .text(data[jid].jid)
+                                    .text(news.jid)
                             )
-                            .append($('<td>', {name: 'password'}))
-                            .append($('<td>', {name: 'control'}))
+                            .append(
+                                $('<td>', {name: 'password'})
+                                    .append(
+                                        $('<input>', {
+                                            'type': 'password',
+                                            'name': 'pwd',
+                                        })
+                                            .addClass('form-control')
+                                    )
+                            )
+                            .append(
+                                $('<td>', {name: 'control'})
+                                    .append(
+                                        $('<button>', {
+                                            type: 'button',
+                                            name: 'login',
+                                        })
+                                            .addClass('btn btn-success')
+                                            .text('登录')
+                                            .click(
+                                                self.display.handlers.onControlLogin
+                                            )
+                                    )
+                                    .append(
+                                        $('<button>', {
+                                            type: 'button',
+                                            name: 'logout',
+                                        })
+                                            .addClass('btn btn-danger')
+                                            .text('退出')
+                                            .click(
+                                                self.display.handlers.onControlLogout
+                                            )
+                                    )
+                            )
                     );
                 } else {
+                    cor.find('[name="status"]').text(news.client.status);
+                    cor.find('[name="jid"]').text(news.jid);
                 }
             }
 
@@ -76,6 +112,18 @@ var xmppPanel = function(){
         handlers: {
             xmppListed: function(data, txtStatus, jqXHR){
                 self.display.data(data);
+            },
+
+            onControlLogin: function(e){
+                var tr = $(e.target).parents('[data-jid]');
+                var jid = tr.attr('data-jid');
+                var pwd = tr.find('[name="pwd"]').val();
+                functions.xmpp.login(jid, pwd);
+            },
+
+            onControlLogout: function(e){
+                var tr = $(e.target).parents('[data-jid]');
+                functions.xmpp.logout(tr.attr('data-jid'));
             },
         },
     };
