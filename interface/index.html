@@ -11,18 +11,6 @@
         <script src="static/js/index.js"></script>
         <script>
             $(function(){
-                $('#xmpp-controller button[name="login"]').click(function(){
-                    functions.xmpp_login(
-                        $('#xmpp-controller [name="jid"]').val(),
-                        $('#xmpp-controller [name="password"]').val()
-                    );
-                });
-
-                $('#xmpp-controller button[name="logout"]').click(function(){
-                    functions.xmpp_logout(
-                        $('#xmpp-controller [name="jid"]').val()
-                    );
-                });
             });
         </script>
     </head>
@@ -33,17 +21,23 @@
                     <tr>
                         <th>#</th>
                         <th>JID</th>
+                        <th>密码</th>
                         <th>状态</th>
                         <th>控制</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <tr name="create">
                         <td>新建</td>
-                        <td><input type="text" name="jid" /></td>
-                        <td>-</td>
                         <td>
-                            <button type="button" name="login">Login</button>
+                            <input type="text" name="jid" class="form-control"/>
+                        </td>
+                        <td>
+                            <input type="password" name="pwd" class="form-control"/>
+                        </td>
+                        <td>无</td>
+                        <td>
+                            <button type="button" name="login" class="btn btn-primary">登录</button>
                         </td>
                     </tr>
                 </tbody>
