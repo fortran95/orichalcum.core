@@ -28,7 +28,7 @@ module.exports = {
 
         x.io.fileSystem.readFile(filePath, function(err, data){
             if(err)
-                e.output.w404();
+                e.output.w404('Not Found.');
             else
                 e.output[outputMethod](data);
         });
