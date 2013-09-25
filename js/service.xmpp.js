@@ -30,21 +30,39 @@ module.exports = {
         switch(operand){
             case 'login':
                 if(e.request.method == 'POST'){
-                    function sequence(){
+                    e.onPosted(function(){
                         var pwd = e.request.parsedFullContent.password;
                         var result = manageTarget.login(pwd);
                         if(result)
                             e.output.w202('Asked client to login.');
                         else
                             e.output.w406('Client refused to login.');
-                    }
-                    e.onPosted(sequence);
+                    });
                 } else
                     e.output.error();
                 break;
             case 'logout':
                 manageTarget.logout();
                 e.output.w202('Asked Client to logout.');
+                break;
+            case 'kill':
+                manageTarget.kill();
+                e.output.w202('Killed client.');
+                break;
+            case 'send':
+                if(e.request.method == 'POST'){
+                    var receiptJID = cmds[1];
+                    e.onPosted(function(){
+                        var content = e.request.parsedFullContent.content;
+                        var result = manageTarget.send(receiptJID, content);
+                        if(result){
+                            e.output.w202('Message recorded and sending.');
+                        } else {
+                            e.output.w406('Client refused to send.');
+                        }
+                    });
+                } else
+                    e.output.error();
                 break;
             default:
                 e.output.w200(
@@ -95,6 +113,13 @@ module.exports = {
             self.client.end();
         };
 
+        this.kill = function(){
+            try{
+                self.client.end();
+            } finally {
+            }
+        };
+
         this.login = function(password){
             if(self.loggedIn() || password == undefined) return false;
 
@@ -108,6 +133,24 @@ module.exports = {
             self.client.on('stanza', self.handlers.onStanza);
             self.client.on('error', self.handlers.onError);
 
+            return true;
+        };
+
+        this.send = function(jid, content){
+            if(!self.loggedIn()) return false;
+            if(content == undefined) return false;
+            console.log('Sending to [' + jid + ']: ' + content);
+            self.client.send(
+                new x.communication_modules.xmpp.Element(
+                    'message',
+                    {
+                        to: jid,
+                        type: 'chat'
+                    }
+                )
+                    .c('body')
+                    .t(content)
+            );
             return true;
         };
 
