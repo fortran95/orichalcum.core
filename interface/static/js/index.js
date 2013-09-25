@@ -90,6 +90,7 @@ var xmppPanel = function(){
                                         $('<input>', {
                                             'type': 'password',
                                             'name': 'pwd',
+                                            'placeholder': '仅在登录时需要'
                                         })
                                             .addClass('form-control')
                                     )
@@ -171,6 +172,7 @@ var xmppPanel = function(){
                 createForm.find('[name="jid"]').val(),
                 createForm.find('[name="pwd"]').val()
             )
+            createForm.find('input[name]').val('');
         });
 
         self.display.refresh();
