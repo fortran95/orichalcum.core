@@ -39,13 +39,14 @@ fact, the web UI also use these APIs.
         http://localhost:8000/service/jid@site.org/
 
 3. Login
-**POST** to following URL:
+
+    **POST** to following URL:
     
         http://localhost:8000/service/xmpp/jid@site.org/login
 
-Including such a form in request body:
+    Including such a form in request body:
 
-    password=SOMEPASSWORD
+        password=SOMEPASSWORD
 
 4. Logout
 
