@@ -1,5 +1,6 @@
 module.exports = function(e){
-    var breaked = e.request.url.split('/');
+    var parsedURL = x.string.url.parse(e.request.url);
+    var breaked = parsedURL.pathname.split('/');
     switch(breaked[1].toLowerCase()){
         case 'service':
             x.service.command(e, breaked.slice(2))
@@ -10,7 +11,8 @@ module.exports = function(e){
         default:
             e.output.redirectPermanent(
                 '/interface/' +
-                breaked.slice(1).join('/')
+                breaked.slice(1).join('/') +
+                parsedURL.search
             );
             break;
     }

@@ -38,6 +38,7 @@ var xmppPanel = function(){
                 url: '/service/xmpp',
                 success: self.display.handlers.xmppListed,
                 dataType: 'json',
+                cache: false,
             });
 
             setTimeout(function(){self.display.refresh();}, 5000);
@@ -57,6 +58,28 @@ var xmppPanel = function(){
             return $('<span>')
                 .addClass('label label-' + c[0])
                 .text(c[1])
+            ;
+        },
+
+        _getFlowObject: function(up, down){
+            return $('<span>')
+                .append(
+                    $('<span>').text(up)
+                )
+                .append(
+                    $('<img>', {
+                        src: 'static/images/up.png'
+                    })
+                )
+                .append($('<span>').html('&nbsp;&nbsp;'))
+                .append(
+                    $('<span>').text(down)
+                )
+                .append(
+                    $('<img>', {
+                        src: 'static/images/down.png'
+                    })
+                )
             ;
         },
 
@@ -94,6 +117,16 @@ var xmppPanel = function(){
                                         })
                                             .addClass('form-control')
                                     )
+                            )
+                            .append(
+                                $('<td>', {name: 'flow'})
+                                    .append(
+                                        self.display._getFlowObject(
+                                            news.queue.send,
+                                            news.queue.receive
+                                        )
+                                    )
+                                    .css('vertical-align', 'middle')
                             )
                             .append(
                                 $('<td>', {name: 'control'})

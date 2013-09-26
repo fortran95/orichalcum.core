@@ -9,7 +9,7 @@ module.exports = function(){
 
     this._queueOperate = function(type, value){
         if(value != undefined){
-            self.emit(type);
+//            self.emit(type);
             self._queue[type].push(value);
         } else
             return self._queue[type].pop();
@@ -22,4 +22,7 @@ module.exports = function(){
     this.receive = function(value){
         return this._queueOperate('receive', value);
     };
+
+    this.countSend = function(){return self._queue['send'].length;};
+    this.countReceive = function(){return self._queue['receive'].length;};
 };

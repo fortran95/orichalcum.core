@@ -82,6 +82,8 @@ module.exports = {
         var self = this;
 
         this.client = null;
+
+        this.queue = new x.storage.queue();
         
         this.clientStatus = function(v){
             /* see <https://github.com/astro/node-xmpp/blob/master/lib/xmpp/client.js> */
@@ -107,6 +109,10 @@ module.exports = {
                 'jid': jid,
                 'client': {
                     'status': self.clientStatus(),
+                },
+                'queue': {
+                    'send': self.queue.countSend(),
+                    'receive': self.queue.countReceive(),
                 },
             };
         };
@@ -182,16 +188,17 @@ module.exports = {
             onStanza: function(stanza){
                 if(
                     stanza.is('message') &&
-                    stanza.attrs.type !== 'error'   // Important: never reply to errors!
+                    stanza.attrs.type !== 'error' 
                 ){
                     var body = stanza.getChild('body');
-                    if(body != undefined)
-                        console.log(body.children.join(''));
-                    // Swap addresses...
-                    stanza.attrs.to = stanza.attrs.from;
-                    delete stanza.attrs.from;
-                    // and send back.
-                    self.client.send(stanza);
+                    if(body != undefined){
+                        var newMessage = {
+                            'content': body.children.join(''),
+                            'from': stanza.attrs.from,
+                        };
+                        console.log(newMessage);
+                        self.queue.receive(newMessage);
+                    }
                 }
             },
 
