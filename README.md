@@ -32,16 +32,16 @@ fact, the web UI also use these APIs.
 
 1. List of all XMPP clients' status
 
-    http://localhost:8000/service/xmpp
+        http://localhost:8000/service/xmpp
 
 2. View the status of a single client
 
-    http://localhost:8000/service/jid@site.org/
+        http://localhost:8000/service/jid@site.org/
 
 3. Login
 **POST** to following URL:
     
-    http://localhost:8000/service/xmpp/jid@site.org/login
+        http://localhost:8000/service/xmpp/jid@site.org/login
 
 Including such a form in request body:
 
@@ -49,10 +49,10 @@ Including such a form in request body:
 
 4. Logout
 
-    http://localhost:8000/service/xmpp/jid@site.org/logout
+        http://localhost:8000/service/xmpp/jid@site.org/logout
 
 5. Send a message
 
-    http://localhost:8000/service/xmpp/sender@some.org/send/receiver@some.com
+        http://localhost:8000/service/xmpp/sender@some.org/send/receiver@some.com
 
 
