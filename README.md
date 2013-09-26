@@ -1,9 +1,13 @@
 Orichalcum.Core
 ===============
 
-The core process, which should be a background service, of orichalcum, is
-designed to automatically login, send and receive XMPP stuff, like one of a
-XMPP client.
+A multipurpose(but now only XMPP) messaging center, enabling background
+sending and receiving messages, and aiming at easing the job of writing a 
+brand new instant messaging(IM) client.
+
+Comes with a web UI, therefore this server itself is a client. But using its
+APIs you can also write a frontend just as easy as this web UI, and this is
+the real purpose of this project.
 
 Dependencies
 ------------
