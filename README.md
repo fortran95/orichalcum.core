@@ -5,6 +5,13 @@ The core process, which should be a background service, of orichalcum, is
 designed to automatically login, send and receive XMPP stuff, like one of a
 XMPP client.
 
+Dependencies
+------------
+
+* `node-xmpp`, you should have this firstly installed.
+
+During my development, I have put the `node_modules/` under `./js/`.
+
 Usage
 -----
 
