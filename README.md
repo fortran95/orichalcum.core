@@ -13,7 +13,7 @@ use:
 
     $ node service.js
 
-where `service.js` is in the same path with this README.md.
+where `service.js` is in the same path with this `README.md`.
 
 Currently supports only XMPP, with login/logout control, send/receive message.
 A web UI is provided by this server and accessible at: 
