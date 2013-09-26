@@ -170,6 +170,15 @@ var xmppPanel = function(){
                         )
                     ;
                     cor.find('[name="jid"]').text(news.jid);
+                    cor.find('[name="flow"]')
+                        .empty()
+                        .append(
+                            self.display._getFlowObject(
+                                news.queue.send,
+                                news.queue.receive
+                            )
+                        )
+                    ;
                 }
             }
 
