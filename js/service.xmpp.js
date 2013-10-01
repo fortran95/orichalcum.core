@@ -130,7 +130,9 @@ module.exports = {
 
         this.kill = function(){
             try{
-                self.client.end();
+                if(self.client)
+                    self.client.connection.socket.destroy();
+                delete self.client;
             } finally {
             }
         };
