@@ -9,10 +9,12 @@ module.exports = function(e){
             x.interface.command(e, breaked.slice(2).join('/'));
             break;
         default:
+            var search = parsedURL.search;
+            if(search == null) search = '';
             e.output.redirectPermanent(
                 '/interface/' +
                 breaked.slice(1).join('/') +
-                parsedURL.search
+                search
             );
             break;
     }

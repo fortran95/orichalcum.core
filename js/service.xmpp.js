@@ -146,9 +146,15 @@ module.exports = {
                     password: password,
                 })
             ;
+
             self.client.on('online', self.handlers.onOnline);
             self.client.on('stanza', self.handlers.onStanza);
             self.client.on('error', self.handlers.onError);
+            
+            self.client.connection.socket.setTimeout(
+                10000,
+                self.handlers.onTimeout
+            );
 
             return true;
         };
@@ -218,6 +224,11 @@ module.exports = {
                     console.log('Detected failed login. End connection.');
                     self.client.end();
                 }
+            },
+
+            onTimeout: function(e){
+                self.kill();
+                console.log('Detected timeout. Self destroyed.');
             },
         }; // handlers: ...
     },  // factory: ...
