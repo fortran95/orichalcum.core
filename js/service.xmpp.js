@@ -69,6 +69,15 @@ module.exports = {
                 } else
                     e.output.error();
                 break;
+            case 'ping':
+                var receipt = cmds[1];
+                var result = manageTarget.ping(receipt);
+                if(result){
+                    e.output.w202('Client agreed to ping.');
+                } else {
+                    e.output.w406('Client refused to ping.');
+                }
+                break;
             default:
                 e.output.w200(
                     JSON.stringify(manageTarget.report())
@@ -178,6 +187,38 @@ module.exports = {
             return true;
         };
 
+        this.ping = function(jid){
+            var stanzaID = '';
+            if(!self.loggedIn()) return false;
+
+            if(jid == undefined){
+                jid = self.client.jid.bare();
+                stanzaID = 'c2s1';
+            } else {
+                stanzaID = 'e2e1';
+            }
+
+            var stanza = new x.communication_modules.xmpp.Element(
+                'iq',
+                {
+                    from: self.client.jid,
+                    to: jid,
+                    type: 'get',
+                    id: stanzaID,
+                }
+            )
+                .c('ping')
+                .attr('xmlns', 'urn:xmpp:ping')
+                .root()
+            ;
+
+            x.log.debug(stanza.toString());
+
+            self.client.send(stanza);
+
+            return true;
+        };
+
         this.handlers = {
 
             onOnline: function(){
@@ -209,6 +250,8 @@ module.exports = {
                         self.queue.receive(newMessage);
                     }
                 }
+
+                x.log.notice(stanza.root().toString());
             },
 
             onError: function(e){

@@ -5,7 +5,7 @@ module.exports = {
     },
 
     debug: function(e){
-        return;
+        console.log('[DEBUG] ' + e);
     },
     
 };
