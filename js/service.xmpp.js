@@ -166,6 +166,9 @@ module.exports = {
                 self.handlers.onTimeout
             );
 
+            self.watchdog.wake();
+            self.autoPinger();
+
             return true;
         };
 
@@ -219,6 +222,16 @@ module.exports = {
             return true;
         };
 
+        this.autoPinger = function(){
+            /*
+             * Once called, will use setTimeout to generate PING every 20 sec.
+             */
+            self.ping();// to Server
+
+            if(self.client)
+                setTimeout(self.autoPinger, 20000);
+        };
+
         this.handlers = {
 
             onOnline: function(){
@@ -236,6 +249,8 @@ module.exports = {
             },
 
             onStanza: function(stanza){
+                self.watchdog.feed();
+
                 if(
                     stanza.is('message') &&
                     stanza.attrs.type !== 'error' 
@@ -282,6 +297,35 @@ module.exports = {
 
 
         }; // handlers: ...
+
+        this.watchdog = {
+            
+            _lastTime: 0,
+            patience: 30000,
+
+            wake: function(){
+                self.watchdog.feed();
+                self.watchdog.hungry();
+            },
+
+            feed: function(){
+                self.watchdog._lastTime = new Date().getTime();
+            },
+
+            hungry: function(){
+                var nowtime = new Date().getTime();
+                if(nowtime - self.watchdog._lastTime > self.watchdog.patience)
+                    if(self.loggedIn()){
+                        self.kill();
+                        x.log.notice('Watchdog shutdown client!');
+                    }
+
+                if(self.client)
+                    setTimeout(self.watchdog.hungry, 1000);
+            },
+
+        }
+
     },  // factory: ...
 
 
