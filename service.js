@@ -13,7 +13,7 @@ var server = {
 
     handlers: {
         onRequest: function (request, response){
-            console.log('Request: ' + request.url);
+            x.log.debug('Request: ' + request.url);
             server.router(server.createPackage(request, response));
         },
     },

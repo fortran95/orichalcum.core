@@ -150,6 +150,7 @@ module.exports = {
             self.client.on('online', self.handlers.onOnline);
             self.client.on('stanza', self.handlers.onStanza);
             self.client.on('error', self.handlers.onError);
+            self.client.on('close', self.handlers.onClose);
             
             self.client.connection.socket.setTimeout(
                 10000,
@@ -162,7 +163,7 @@ module.exports = {
         this.send = function(jid, content){
             if(!self.loggedIn()) return false;
             if(content == undefined) return false;
-            console.log('Sending to [' + jid + ']: ' + content);
+            x.log.notice('Sending to [' + jid + ']: ' + content);
             self.client.send(
                 new x.communication_modules.xmpp.Element(
                     'message',
@@ -204,32 +205,39 @@ module.exports = {
                             'content': body.children.join(''),
                             'from': stanza.attrs.from,
                         };
-                        console.log(newMessage);
+                        x.log.notice(newMessage);
                         self.queue.receive(newMessage);
                     }
                 }
             },
 
             onError: function(e){
-                console.log(e);
+                x.log.notice(e);
                 if(self.clientStatus('AUTH')){
                     // Login failure. Attach self destory sequence.
                     self.client.on(
                         'close',
                         function(){
                             self.client = null;
-                            console.log('SELF DESTORYED.');
+                            x.log.notice('SELF DESTORYED.');
                         }
                     );
-                    console.log('Detected failed login. End connection.');
+                    x.log.notice('Detected failed login. End connection.');
                     self.client.end();
                 }
             },
 
             onTimeout: function(e){
-                self.kill();
-                console.log('Detected timeout. Self destroyed.');
+//                self.kill();
+//                x.log.notice('Detected timeout. Self destroyed.');
+                x.log.notice('Timeout received.');
             },
+
+            onClose: function(e){
+                x.log.notice('Close received.');
+            },
+
+
         }; // handlers: ...
     },  // factory: ...
 

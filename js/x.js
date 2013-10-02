@@ -42,6 +42,8 @@ var _x_ = {
 
     },
 
+    log: require('./log.js'),
+
 };
 
 module.exports = _x_;
