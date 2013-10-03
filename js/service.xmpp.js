@@ -96,7 +96,7 @@ module.exports = {
         this._manuallyStart = false;
         this.client = null;
         this.queue = new x.storage.queue();
-        
+
         this.clientStatus = function(v){
             /* see <https://github.com/astro/node-xmpp/blob/master/lib/xmpp/client.js> */
             var res = 'PREAUTH';
@@ -171,7 +171,7 @@ module.exports = {
             self.client.on('stanza', self.handlers.onStanza);
             self.client.on('error', self.handlers.onError);
             self.client.on('close', self.handlers.onClose);
-            
+
             self.client.connection.socket.setTimeout(
                 10000,
                 self.handlers.onTimeout
@@ -254,18 +254,39 @@ module.exports = {
                 setTimeout(self.autoPinger, 20000);
         };
 
+        this.sendPresence = function(show, words){
+            if(!self.loggedIn()) return false;
+            if(show == undefined) show = 'chat';
+            if(words == undefined) words = 'A probe of my orichalcum system.';
+
+            self.client
+                .send(
+                    new x.communication_modules.xmpp
+                        .Element('presence', { })
+                        .c('show')
+                        .t(show)
+                        .up()
+                        .c('status')
+                        .t(words)
+                )
+            ;
+        };
+
         this.handlers = {
 
             onOnline: function(){
                 self.client
                     .send(
-                        new x.communication_modules.xmpp
-                            .Element('presence', { })
-                            .c('show')
-                            .t('chat')
-                            .up()
-                            .c('status')
-                            .t('THIS IS THE ECHOBOT FROM ORICHALCUM.CORE!')
+                        new x.communication_modules.xmpp.Element(
+                            'iq', {
+                                from: self.client.jid,
+                                type: 'get',
+                                id: 'roster_1',
+                            }
+                        )
+                            .c('query')
+                            .attr('xmlns', 'jabber:iq:roster')
+                            .root()
                     )
                 ;
             },
@@ -273,20 +294,24 @@ module.exports = {
             onStanza: function(stanza){
                 self.watchdog.feed();
 
+                /*
+                 * Use self.xmppParser to parse stanza.
+                 * Here is the router.
+                 */
                 if(
                     stanza.is('message') &&
-                    stanza.attrs.type !== 'error' 
-                ){
-                    var body = stanza.getChild('body');
-                    if(body != undefined){
-                        var newMessage = {
-                            'content': body.children.join(''),
-                            'from': stanza.attrs.from,
-                        };
-                        x.log.notice(newMessage);
-                        self.queue.receive(newMessage);
-                    }
+                    stanza.attrs.type !== 'error'
+                )
+                    self.xmppParser.message(stanza);
+
+                if(stanza.is('iq')){
+                    if(
+                        stanza.attrs.type == 'result' &&
+                        stanza.attrs.id == 'roster_1'
+                    )
+                        self.xmppParser.roster(stanza);
                 }
+                /* end of router */
 
                 x.log.notice(stanza.root().toString());
             },
@@ -310,11 +335,10 @@ module.exports = {
                 x.log.notice('Close received.');
             },
 
-
         }; // handlers: ...
 
         this.watchdog = {
-            
+
             _lastTime: 0,
             patience: 30000,
 
@@ -341,6 +365,24 @@ module.exports = {
 
         }
 
+        this.xmppParser = {
+
+            message: function(stanza){
+                var body = stanza.getChild('body');
+                if(body != undefined){
+                    var newMessage = {
+                        'content': body.children.join(''),
+                        'from': stanza.attrs.from,
+                    };
+                    x.log.notice(newMessage);
+                    self.queue.receive(newMessage);
+                }
+            },
+
+            roster: function(stanza){
+            },
+
+        };
     },  // factory: ...
 
 
