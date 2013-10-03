@@ -67,7 +67,10 @@ module.exports = {
                         }
                     });
                 } else
-                    e.output.error();
+                     e.output.w200json(manageTarget.send());
+                break;
+            case 'receive':
+                 e.output.w200json(manageTarget.receive());
                 break;
             case 'ping':
                 var receipt = cmds[1];
@@ -181,21 +184,32 @@ module.exports = {
         };
 
         this.send = function(jid, content){
+            if(jid == undefined){
+                // Get send queue
+                return self.queue.send();
+            } else {
+                if(!self.loggedIn()) return false;
+                if(content == undefined) return false;
+                x.log.notice('Sending to [' + jid + ']: ' + content);
+                self.client.send(
+                    new x.communication_modules.xmpp.Element(
+                        'message',
+                        {
+                            to: jid,
+                            type: 'chat'
+                        }
+                    )
+                        .c('body')
+                        .t(content)
+                );
+                return true;
+            }
+        };
+
+        this.receive = function(){
+            // Get receive queue
             if(!self.loggedIn()) return false;
-            if(content == undefined) return false;
-            x.log.notice('Sending to [' + jid + ']: ' + content);
-            self.client.send(
-                new x.communication_modules.xmpp.Element(
-                    'message',
-                    {
-                        to: jid,
-                        type: 'chat'
-                    }
-                )
-                    .c('body')
-                    .t(content)
-            );
-            return true;
+            return self.queue.receive();
         };
 
         this.ping = function(jid){

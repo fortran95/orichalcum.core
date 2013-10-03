@@ -36,6 +36,10 @@ module.exports = function(resp){
         self.w200(content, {'Content-Type': 'text/plain'});
     };
 
+    this.w200json = function(json){
+        self.w200(JSON.stringify(json), {'Content-Type': 'text/plain'});
+    };
+
     this.w404 = function(c){self._endCode(404, c);};
     this.w401 = function(c){self._endCode(401, c);};
     this.w406 = function(c){self._endCode(406, c);};
