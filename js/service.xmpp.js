@@ -90,8 +90,8 @@ module.exports = {
     factory: function(jid){
         var self = this;
 
+        this._manuallyStart = false;
         this.client = null;
-
         this.queue = new x.storage.queue();
         
         this.clientStatus = function(v){
@@ -135,13 +135,20 @@ module.exports = {
         this.logout = function(){
             if(!self.loggedIn()) return;
             self.client.end();
+            self._autoReconnect = false;
         };
 
         this.kill = function(){
             try{
-                if(self.client)
+                if(self.client){
+                    var pwd = self.client.password;
                     self.client.connection.socket.destroy();
-                delete self.client;
+                    delete self.client;
+
+                    if(self._autoReconnect){
+                        self.login(pwd);
+                    }
+                }
             } finally {
             }
         };
@@ -155,6 +162,7 @@ module.exports = {
                     password: password,
                 })
             ;
+            self._autoReconnect = true;
 
             self.client.on('online', self.handlers.onOnline);
             self.client.on('stanza', self.handlers.onStanza);
@@ -273,15 +281,8 @@ module.exports = {
                 x.log.notice(e);
                 if(self.clientStatus('AUTH')){
                     // Login failure. Attach self destory sequence.
-                    self.client.on(
-                        'close',
-                        function(){
-                            self.client = null;
-                            x.log.notice('SELF DESTORYED.');
-                        }
-                    );
-                    x.log.notice('Detected failed login. End connection.');
-                    self.client.end();
+                    self._autoReconnect = false;
+                    self.kill();
                 }
             },
 
