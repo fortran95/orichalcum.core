@@ -93,16 +93,23 @@ var xmppPanel = function(){
         },
 
         data: function(data){
-            var tbody = $('#xmpp-clients tbody');
+            var tbody = $('#xmpp-clients tbody[name="main-list"]');
             var jids = [];
             for(var jid in data){
                 jids.push(jid);
-                var cor = tbody.find('tr[data-jid="' + jid + '"]');
+                var corMain = tbody.find('tr[data-jidmain="' + jid + '"]');
+                var corRosterContent =
+                    tbody.find(
+                        'tr[data-jidroster="' +
+                        jid +
+                        '"] table[name="content"]'
+                    );
                 var news = data[jid];
-                if(cor.length < 1){
+                if(corMain.length < 1){
                     tbody.prepend(
-                        $('<tr>', {'data-jid': jid})
-                            .append(
+                        $('<tr>', {'data-jidmain': jid})
+                            /* Add Main Item */
+                            .append( // #
                                 $('<td>', {name: 'status'})
                                     .append(
                                         self.display._getStatusObject(
@@ -111,12 +118,30 @@ var xmppPanel = function(){
                                     )
                                     .css('vertical-align', 'middle')
                             )
-                            .append(
+                            .append( // Buddy
+                                $('<td>')
+                                    .append(
+                                        $('<button>', {
+                                            'name': 'buddy',
+                                            'data-jid': jid,
+                                        })
+                                            .addClass('button btn-link')
+                                            .css('vertical-align', 'middle')
+                                            .text('0')
+                                            .click(
+                                                self
+                                                    .display
+                                                    .handlers
+                                                    .onBuddylistClicked
+                                            )
+                                    )
+                            )
+                            .append( // JID
                                 $('<td>', {name: 'jid'})
                                     .text(news.jid)
                                     .css('vertical-align', 'middle')
                             )
-                            .append(
+                            .append( // Password
                                 $('<td>', {name: 'password'})
                                     .append(
                                         $('<input>', {
@@ -127,7 +152,7 @@ var xmppPanel = function(){
                                             .addClass('form-control')
                                     )
                             )
-                            .append(
+                            .append( // Flow
                                 $('<td>', {name: 'flow'})
                                     .append(
                                         self.display._getFlowObject(
@@ -137,7 +162,7 @@ var xmppPanel = function(){
                                     )
                                     .css('vertical-align', 'middle')
                             )
-                            .append(
+                            .append( // Control
                                 $('<td>', {name: 'control'})
                                     .append(
                                         $('<button>', {
@@ -168,9 +193,24 @@ var xmppPanel = function(){
                                             )
                                     )
                             )
+                            /* Add Roster Region, default hidden. */
+                            .add( 
+                                $('<tr>', {'data-jidroster': jid})
+                                    .append($('<td>'))
+                                    .append(
+                                        $('<td>', {colspan: 5})
+                                            .append(
+                                                $('<table>',{name: 'content'})
+                                                    .addClass('table')
+                                            )
+                                    )
+                                    .hide()
+                            )
+                            /* Done preparing a new entry. */
                     );
                 } else {
-                    cor.find('[name="status"]')
+                    /* Update displays in a entry main title. */
+                    corMain.find('[name="status"]')
                         .empty()
                         .append(
                             self.display._getStatusObject(
@@ -178,8 +218,8 @@ var xmppPanel = function(){
                             )
                         )
                     ;
-                    cor.find('[name="jid"]').text(news.jid);
-                    cor.find('[name="flow"]')
+                    corMain.find('[name="jid"]').text(news.jid);
+                    corMain.find('[name="flow"]')
                         .empty()
                         .append(
                             self.display._getFlowObject(
@@ -188,11 +228,39 @@ var xmppPanel = function(){
                             )
                         )
                     ;
-                }
-            }
+                    
+                    /* Update Roster displays. */
+                    for(var buddyGroup in news.roster)
+                        for(var buddyJID in news.roster[buddyGroup]){
+                            var buddyEntry = corRosterContent.find(
+                                'tr[data-jid="' + buddyJID + '"]'
+                            );
+                            if(buddyEntry.length < 1){
+                                corRosterContent.append(
+                                    $('<tr>', {
+                                        'data-jid': buddyJID
+                                    }).append(
+                                        $('<td>')
+                                            .text(buddyJID)
+                                    )
+                                );
+                            } else {
+                            }
+                        }
 
-            tbody.find('tr[data-jid]').each(function(){
-                if(jids.indexOf($(this).attr('data-jid')) < 0)
+                    /* Done updating a entry's displays. */
+                } // if 
+
+            } // for
+
+            /* Remove JID entries and corresponding rosters,
+             * when JID not exists in retrived data. */
+            tbody.find('tr[data-jidmain]').each(function(){
+                if(jids.indexOf($(this).attr('data-jidmain')) < 0)
+                    $(this).remove();
+            });
+            tbody.find('tr[data-jidroster]').each(function(){
+                if(jids.indexOf($(this).attr('data-jidroster')) < 0)
                     $(this).remove();
             });
         },
@@ -203,15 +271,18 @@ var xmppPanel = function(){
             },
 
             onControlLogin: function(e){
-                var tr = $(e.target).parents('[data-jid]');
-                var jid = tr.attr('data-jid');
+                var tr = $(e.target).parents('[data-jidmain]');
+                var jid = tr.attr('data-jidmain');
                 var pwd = tr.find('[name="pwd"]').val();
                 functions.xmpp.login(jid, pwd);
             },
 
             onControlLogout: function(e){
-                var tr = $(e.target).parents('[data-jid]');
-                functions.xmpp.logout(tr.attr('data-jid'));
+                var tr = $(e.target).parents('[data-jidmain]');
+                functions.xmpp.logout(tr.attr('data-jidmain'));
+            },
+
+            onBuddylistClicked: function(e){
             },
         },
     };

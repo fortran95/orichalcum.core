@@ -229,7 +229,6 @@ module.exports = {
         };
 
         this.roster = function(){
-            if(!self.loggedIn()) return {};
             return self.rosterManager.all();
         };
 
@@ -412,7 +411,7 @@ module.exports = {
 
         this.rosterManager = {
             
-            _roster: {},
+            _roster: {'debug':{'test@test.org':{'status':'online'}, 'abc@cde.com':{'status':'offline'}}},
 
             register: function(list){
             },
