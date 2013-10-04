@@ -245,22 +245,23 @@ var xmppPanel = function(){
                 for(var buddyGroup in news.roster)
                     for(var buddyJID in news.roster[buddyGroup]){
                         var buddyEntry = corRosterContent.find(
-                            'tr[data-jid="' + buddyJID + '"]'
+                            'tr[data-to="' + buddyJID + '"]'
                         );
                         if(buddyEntry.length < 1){
                             corRosterContent.append(
                                 $('<tr>', {
-                                    'data-jid': buddyJID
+                                    'data-to': buddyJID,
+                                    'data-from': jid,
                                 }).append(
                                     $('<td>')
                                         .text(buddyJID)
-                                        .addClass('active')
-                                        .click(
-                                            self
-                                                .display
-                                                .handlers
-                                                .onBuddyentryClicked
-                                        )
+                                )
+                                .addClass('active')
+                                .click(
+                                    self
+                                        .display
+                                        .handlers
+                                        .onBuddyentryClicked
                                 )
                             );
                         } else {
@@ -269,8 +270,8 @@ var xmppPanel = function(){
 
                     }
                 /* clean up roster list */
-                corRosterContent.find('tr[data-jid]').each(function(){
-                    if(rosterJIDs.indexOf($(this).attr('data-jid')) < 0)
+                corRosterContent.find('tr[data-to]').each(function(){
+                    if(rosterJIDs.indexOf($(this).attr('data-to')) < 0)
                         $(this).remove();
                 });
 
@@ -300,12 +301,16 @@ var xmppPanel = function(){
                 functions.xmpp.logout(tr.attr('data-jidmain'));
             },
 
+            onControlSend: function(e){
+                alert($('tr.success[data-to]').length);
+            },
+
             onBuddylistClicked: function(e){
                 var tr = $(e.target).parents('[data-jidmain]');
                 var trRoster = tr.parents('table').find(
                     'tr[data-jidroster="' + tr.attr('data-jidmain') + '"]'
                 );
-                var rosterLines = trRoster.find('tr[data-jid]');
+                var rosterLines = trRoster.find('tr[data-to]');
                 if(rosterLines.length < 1)
                     trRoster.hide();
                 else
@@ -313,7 +318,7 @@ var xmppPanel = function(){
             },
 
             onBuddyentryClicked: function(e){
-                $(this).toggleClass('active success');
+                $(e.target).toggleClass('active success');
             },
         },
     };
