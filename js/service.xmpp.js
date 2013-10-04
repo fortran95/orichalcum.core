@@ -97,6 +97,7 @@ module.exports = {
         var self = this;
 
         this._autoReconnect = false;
+        this._password = false;
         this.client = null;
         this.queue = new x.storage.queue();
 
@@ -120,10 +121,14 @@ module.exports = {
         };
 
         this.report = function(){
+            var password = false;
+            if(self.password) password = true;
+
             return {
                 'jid': jid,
                 'client': {
                     'status': self.clientStatus(),
+                    'password': password,
                 },
                 'queue': {
                     'send': self.queue.countSend(),
@@ -146,14 +151,18 @@ module.exports = {
         };
 
         this.kill = function(){
+            /*
+             * Forced Restart Sequence
+             *
+             * This will destory the client, and try to login.
+             */
             try{
                 if(self.client){
-                    var pwd = self.client.password;
                     self.client.connection.socket.destroy();
                     delete self.client;
 
                     if(self._autoReconnect){
-                        self.login(pwd);
+                        self.login(self._password);
                     }
                 }
             } finally {
@@ -161,7 +170,9 @@ module.exports = {
         };
 
         this.login = function(password){
-            if(self.loggedIn() || password == undefined) return false;
+            if(self.clientStatus() > 0) return false;
+            if(password == undefined) password = self._password;
+            if(!password) return false;
 
             self.client =
                 new x.communication_modules.xmpp.Client({
@@ -170,6 +181,7 @@ module.exports = {
                 })
             ;
             self._autoReconnect = true;
+            self._password = password;
 
             self.client.on('online', self.handlers.onOnline);
             self.client.on('stanza', self.handlers.onStanza);
@@ -328,8 +340,13 @@ module.exports = {
             onError: function(e){
                 x.log.notice(e);
                 if(self.clientStatus('AUTH')){
-                    // Login failure. Attach self destory sequence.
-                    self._autoReconnect = false;
+                    // failure to login.
+                    if(e.toString().indexOf('auth') >= 0){
+                        // Login failure.
+                        self._password = false;
+                        self._autoReconnect = false;
+                    }
+                    // Attach self destory sequence.
                     self.kill();
                 }
             },
