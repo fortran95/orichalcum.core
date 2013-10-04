@@ -129,6 +129,7 @@ module.exports = {
                     'send': self.queue.countSend(),
                     'receive': self.queue.countReceive(),
                 },
+                'roster': self.roster(),
             };
         };
 
@@ -400,6 +401,7 @@ module.exports = {
             },
 
             presence: function(){
+                
             },
 
             all: function(){
