@@ -4,7 +4,7 @@ var functions = {
         login: function(jid, pwd){
             $.ajax({
                 type: "POST",
-                url: '../service/xmpp/' + jid + '/login',
+                url: '/service/xmpp/' + jid + '/login',
                 data: {password: pwd},
                 success: function(e){
                     
@@ -16,10 +16,19 @@ var functions = {
         logout: function(jid){
             $.ajax({
                 type: "GET",
-                url: '../service/xmpp/' + jid + '/logout',
+                url: '/service/xmpp/' + jid + '/logout',
                 success: function(e){
                     
                 },
+                dataType: 'text',
+            });
+        },
+
+        send: function(senderJID, receiverJID, message){
+            $.ajax({
+                type: "POST",
+                url: '/service/xmpp/' + senderJID + '/send/' + receiverJID,
+                success: function(e){},
                 dataType: 'text',
             });
         },
