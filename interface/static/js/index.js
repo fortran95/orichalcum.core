@@ -334,6 +334,7 @@ var xmppPanel = function(){
         });
 
         self.display.refresh();
+        //TODO initialize send button
     };
 
     $(function(){self.init();});
