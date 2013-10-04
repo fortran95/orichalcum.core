@@ -255,14 +255,14 @@ var xmppPanel = function(){
                                 }).append(
                                     $('<td>')
                                         .text(buddyJID)
+                                        .click(
+                                            self
+                                                .display
+                                                .handlers
+                                                .onBuddyentryClicked
+                                        )
                                 )
                                 .addClass('active')
-                                .click(
-                                    self
-                                        .display
-                                        .handlers
-                                        .onBuddyentryClicked
-                                )
                             );
                         } else {
                             // TODO update presence and other things.
@@ -318,7 +318,8 @@ var xmppPanel = function(){
             },
 
             onBuddyentryClicked: function(e){
-                $(e.target).toggleClass('active success');
+                $(e.target).parents('[data-to]')
+                    .toggleClass('active success');
             },
         },
     };
@@ -332,9 +333,21 @@ var xmppPanel = function(){
             )
             createForm.find('input[name]').val('');
         });
+        
+        var sendForm = $('#xmpp-clients [name="send"]');
+        sendForm.find('[name="send"]').click(function(){
+            var receivers = $('tr.success[data-to]');
+            var results = [];
+            for(var i=0; i<receivers.length;i++){
+                results.push([
+                    $(receivers[i]).attr('data-to'),
+                    $(receivers[i]).attr('data-from'),
+                ]);
+            }
+            alert(results);
+        });
 
         self.display.refresh();
-        //TODO initialize send button
     };
 
     $(function(){self.init();});
