@@ -436,14 +436,7 @@ module.exports = {
             },
 
             roster: function(stanza){
-            /*
-             <iq id="roster_1" type="result" to="neoatlantis@dukgo.com/8a45f1d2-e91f-498d-869d-28efdec6bab0" xmlns:stream="http://etherx.jabber.org/streams">
-                <query ver="9" xmlns="jabber:iq:roster">
-                    <item jid="echo@neoatlantis.info" subscription="to" name="ECHO_ID"/>
-                    <item jid="neoatlantis@neoatlantis.info" subscription="both"/>
-                </query>
-            </iq>
-            */
+                /* giftiger Fussabdruck wegen historisches Grund hier! */
                 try{
                     var items = stanza.getChildren('item');
                     for(var i=0; i<items.length; i++){
