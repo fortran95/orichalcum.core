@@ -346,7 +346,7 @@ module.exports = {
                         var queryStanza = stanza.getChild('query');
                         if(queryStanza){
                             if(queryStanza.attrs.xmlns == 'jabber:iq:roster'){
-                                self.xmppParser.roster(stanza);
+                                self.xmppParser.roster(queryStanza);
                                 /* send presence if not done that. */
                                 if(self._initPresence){
                                     if(true === self._initPresence)
@@ -436,11 +436,16 @@ module.exports = {
             },
 
             roster: function(stanza){
-                /* giftiger Fussabdruck wegen historisches Grund hier! */
+                /* giftiger Fussabdruck wegen historisches Grundes hier! */
                 try{
+                    var list = {'default':{}};
                     var items = stanza.getChildren('item');
                     for(var i=0; i<items.length; i++){
-                        x.log.debug(items[i].toString());
+                        var newitem = {
+                        };
+                        var groupName = 'default';
+                        if(list[groupName] == undefined) list[groupName] = {};
+                        //TODO parse and list roster into 'list', then pass it.
                     }
                 } catch(e){
                 }
@@ -450,7 +455,7 @@ module.exports = {
 
         this.rosterManager = {
             
-            _roster: {'debug':{'test@test.org':{'status':'online'}, 'abc@cde.com':{'status':'offline'}}},
+            _roster: {},
 
             register: function(list){
             },
