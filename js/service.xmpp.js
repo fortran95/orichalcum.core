@@ -98,6 +98,7 @@ module.exports = {
 
         this._autoReconnect = false;
         this._password = false;
+        this._initPresence = true;
         this.client = null;
         this.queue = new x.storage.queue();
 
@@ -169,10 +170,17 @@ module.exports = {
             }
         };
 
-        this.login = function(password){
+        this.login = function(password, presence){
             if(self.clientStatus() > 0) return false;
             if(password == undefined) password = self._password;
             if(!password) return false;
+
+            self._autoReconnect = true;
+            self._password = password;
+            if(presence != undefined)
+                self._initPresence = presence; //TODO validate 'presence', must contain valid 'chat' and 'words' item.
+            else
+                self._initPresence = true;
 
             self.client =
                 new x.communication_modules.xmpp.Client({
@@ -180,8 +188,6 @@ module.exports = {
                     password: password,
                 })
             ;
-            self._autoReconnect = true;
-            self._password = password;
 
             self.client.on('online', self.handlers.onOnline);
             self.client.on('stanza', self.handlers.onStanza);
@@ -292,6 +298,8 @@ module.exports = {
                         .t(words)
                 )
             ;
+
+            x.log.notice('Presence sent.');
         };
 
         this.handlers = {
@@ -320,6 +328,8 @@ module.exports = {
 
             onStanza: function(stanza){
                 self.watchdog.feed();
+                stanza = stanza.root();
+                x.log.notice(stanza.toString());
 
                 /*
                  * Use self.xmppParser to parse stanza.
@@ -332,15 +342,29 @@ module.exports = {
                     self.xmppParser.message(stanza);
 
                 if(stanza.is('iq')){
-                    if(
-                        stanza.attrs.type == 'result' &&
-                        stanza.attrs.id == 'roster_1'
-                    )
-                        self.xmppParser.roster(stanza);
+                    try{
+                        var queryStanza = stanza.getChild('query');
+                        if(queryStanza){
+                            if(queryStanza.attrs.xmlns == 'jabber:iq:roster'){
+                                self.xmppParser.roster(stanza);
+                                /* send presence if not done that. */
+                                if(self._initPresence){
+                                    if(true === self._initPresence)
+                                        self.sendPresence();
+                                    else
+                                        self.sendPresence(
+                                            self._initPresence.chat,
+                                            self._initPresence.words
+                                        );
+                                    self._initPresence = false;
+                                }
+                            }
+                        }
+                    } catch (e){
+                    }
                 }
                 /* end of router */
 
-                x.log.notice(stanza.root().toString());
             },
 
             onError: function(e){
@@ -412,6 +436,21 @@ module.exports = {
             },
 
             roster: function(stanza){
+            /*
+             <iq id="roster_1" type="result" to="neoatlantis@dukgo.com/8a45f1d2-e91f-498d-869d-28efdec6bab0" xmlns:stream="http://etherx.jabber.org/streams">
+                <query ver="9" xmlns="jabber:iq:roster">
+                    <item jid="echo@neoatlantis.info" subscription="to" name="ECHO_ID"/>
+                    <item jid="neoatlantis@neoatlantis.info" subscription="both"/>
+                </query>
+            </iq>
+            */
+                try{
+                    var items = stanza.getChildren('item');
+                    for(var i=0; i<items.length; i++){
+                        x.log.debug(items[i].toString());
+                    }
+                } catch(e){
+                }
             },
 
         };
