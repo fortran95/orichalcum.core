@@ -254,9 +254,17 @@ var xmppPanel = function(){
                                 }).append(
                                     $('<td>')
                                         .text(buddyJID)
+                                        .addClass('active')
+                                        .click(
+                                            self
+                                                .display
+                                                .handlers
+                                                .onBuddyentryClicked
+                                        )
                                 )
                             );
                         } else {
+                            // TODO update presence and other things.
                         }
 
                     }
@@ -302,6 +310,10 @@ var xmppPanel = function(){
                     trRoster.hide();
                 else
                     trRoster.toggle();
+            },
+
+            onBuddyentryClicked: function(e){
+                $(this).toggleClass('active success');
             },
         },
     };
