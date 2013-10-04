@@ -72,6 +72,9 @@ module.exports = {
             case 'receive':
                  e.output.w200json(manageTarget.receive());
                 break;
+            case 'roster':
+                e.output.w200json(manageTarget.roster());
+                break;
             case 'ping':
                 var receipt = cmds[1];
                 var result = manageTarget.ping(receipt);
@@ -93,7 +96,7 @@ module.exports = {
     factory: function(jid){
         var self = this;
 
-        this._manuallyStart = false;
+        this._autoReconnect = false;
         this.client = null;
         this.queue = new x.storage.queue();
 
@@ -210,6 +213,11 @@ module.exports = {
             // Get receive queue
             if(!self.loggedIn()) return false;
             return self.queue.receive();
+        };
+
+        this.roster = function(){
+            if(!self.loggedIn()) return {};
+            return self.rosterManager.all();
         };
 
         this.ping = function(jid){
@@ -380,6 +388,22 @@ module.exports = {
             },
 
             roster: function(stanza){
+            },
+
+        };
+
+        this.rosterManager = {
+            
+            _roster: {},
+
+            register: function(list){
+            },
+
+            presence: function(){
+            },
+
+            all: function(){
+                return self.rosterManager._roster;
             },
 
         };
