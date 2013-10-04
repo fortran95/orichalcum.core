@@ -98,13 +98,16 @@ var xmppPanel = function(){
             for(var jid in data){
                 jids.push(jid);
                 var corMain = tbody.find('tr[data-jidmain="' + jid + '"]');
-                var corRosterContent =
-                    tbody.find(
-                        'tr[data-jidroster="' +
-                        jid +
-                        '"] table[name="content"]'
-                    );
                 var news = data[jid];
+
+                /* count roster for further use */
+                var rosterJIDs = [];
+                for(var buddyGroup in news.roster)
+                    for(var buddyJID in news.roster[buddyGroup])
+                        if(rosterJIDs.indexOf(buddyJID) < 0)
+                            rosterJIDs.push(buddyJID);
+
+                /* Create, or edit an account entry. */
                 if(corMain.length < 1){
                     tbody.prepend(
                         $('<tr>', {'data-jidmain': jid})
@@ -127,7 +130,7 @@ var xmppPanel = function(){
                                         })
                                             .addClass('button btn-link')
                                             .css('vertical-align', 'middle')
-                                            .text('0')
+                                            .text(rosterJIDs.length)
                                             .click(
                                                 self
                                                     .display
@@ -228,39 +231,46 @@ var xmppPanel = function(){
                             )
                         )
                     ;
-                    
-                    /* Update Roster displays. */
-                    for(var buddyGroup in news.roster)
-                        for(var buddyJID in news.roster[buddyGroup]){
-                            var buddyEntry = corRosterContent.find(
-                                'tr[data-jid="' + buddyJID + '"]'
-                            );
-                            if(buddyEntry.length < 1){
-                                corRosterContent.append(
-                                    $('<tr>', {
-                                        'data-jid': buddyJID
-                                    }).append(
-                                        $('<td>')
-                                            .text(buddyJID)
-                                    )
-                                );
-                            } else {
-                            }
-                        }
 
                     /* Done updating a entry's displays. */
                 } // if 
 
+                /* Update Roster displays. */
+                var corRosterContent =
+                    tbody.find(
+                        'tr[data-jidroster="' +
+                        jid +
+                        '"] table[name="content"]'
+                    );
+                for(var buddyGroup in news.roster)
+                    for(var buddyJID in news.roster[buddyGroup]){
+                        var buddyEntry = corRosterContent.find(
+                            'tr[data-jid="' + buddyJID + '"]'
+                        );
+                        if(buddyEntry.length < 1){
+                            corRosterContent.append(
+                                $('<tr>', {
+                                    'data-jid': buddyJID
+                                }).append(
+                                    $('<td>')
+                                        .text(buddyJID)
+                                )
+                            );
+                        } else {
+                        }
+
+                    }
+                /* clean up roster list */
+                corRosterContent.find('tr[data-jid]').each(function(){
+                    if(rosterJIDs.indexOf($(this).attr('data-jid')) < 0)
+                        $(this).remove();
+                });
+
             } // for
 
-            /* Remove JID entries and corresponding rosters,
-             * when JID not exists in retrived data. */
+            /* clean up jid entries list */
             tbody.find('tr[data-jidmain]').each(function(){
                 if(jids.indexOf($(this).attr('data-jidmain')) < 0)
-                    $(this).remove();
-            });
-            tbody.find('tr[data-jidroster]').each(function(){
-                if(jids.indexOf($(this).attr('data-jidroster')) < 0)
                     $(this).remove();
             });
         },
@@ -283,6 +293,15 @@ var xmppPanel = function(){
             },
 
             onBuddylistClicked: function(e){
+                var tr = $(e.target).parents('[data-jidmain]');
+                var trRoster = tr.parents('table').find(
+                    'tr[data-jidroster="' + tr.attr('data-jidmain') + '"]'
+                );
+                var rosterLines = trRoster.find('tr[data-jid]');
+                if(rosterLines.length < 1)
+                    trRoster.hide();
+                else
+                    trRoster.toggle();
             },
         },
     };
