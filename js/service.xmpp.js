@@ -67,7 +67,7 @@ module.exports = {
                         }
                     });
                 } else
-                     e.output.w200json(manageTarget.send());
+                     e.output.w406('Must POST.');
                 break;
             case 'receive':
                  e.output.w200json(manageTarget.receive());
@@ -200,26 +200,28 @@ module.exports = {
         };
 
         this.send = function(jid, content){
-            if(jid == undefined){
-                // Get send queue
-                return self.queue.send();
-            } else {
-                if(!self.loggedIn()) return false;
-                if(content == undefined) return false;
-                x.log.notice('Sending to [' + jid + ']: ' + content);
-                self.client.send(
-                    new x.communication_modules.xmpp.Element(
-                        'message',
-                        {
-                            to: jid,
-                            type: 'chat'
-                        }
-                    )
-                        .c('body')
-                        .t(content)
-                );
-                return true;
-            }
+            /*
+             * Send an Element
+             * if not login, this will be put into queue.
+             */
+            if(content == undefined) return false;
+            x.log.notice('Sending to [' + jid + ']: ' + content);
+            var element = 
+                new x.communication_modules.xmpp.Element(
+                    'message',
+                    {
+                        to: jid,
+                        type: 'chat'
+                    }
+                )
+                    .c('body')
+                    .t(content)
+            ;
+            if(self.loggedIn())
+                self.client.send(element);
+            else
+                self.queue.send(element);
+            return true;
         };
 
         this.receive = function(){
@@ -295,6 +297,7 @@ module.exports = {
         this.handlers = {
 
             onOnline: function(){
+                /* Request Roster. */
                 self.client
                     .send(
                         new x.communication_modules.xmpp.Element(
@@ -309,6 +312,10 @@ module.exports = {
                             .root()
                     )
                 ;
+
+                /* Purge send queue. */
+                while(self.queue.countSend() > 0)
+                    self.client.send(self.queue.send());
             },
 
             onStanza: function(stanza){

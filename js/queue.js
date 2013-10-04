@@ -12,7 +12,7 @@ module.exports = function(){
 //            self.emit(type);
             self._queue[type].push(value);
         } else
-            return self._queue[type].pop();
+            return self._queue[type].shift();
     };
 
     this.send = function(value){
