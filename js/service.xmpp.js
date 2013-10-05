@@ -460,8 +460,7 @@ module.exports = {
                         newitem.name =
                             x.object.getter(
                                 items[i].attrs,
-                                'name',
-                                newitem.jid
+                                'name'
                             );
                         /* determine group name */
                         var groupName = 'default';

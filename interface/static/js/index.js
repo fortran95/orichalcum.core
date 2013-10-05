@@ -223,6 +223,7 @@ var xmppPanel = function(){
                         )
                     ;
                     corMain.find('[name="jid"]').text(news.jid);
+                    corMain.find('[name="buddy"]').text(rosterJIDs.length);
                     corMain.find('[name="flow"]')
                         .empty()
                         .append(
@@ -248,6 +249,11 @@ var xmppPanel = function(){
                         var buddyEntry = corRosterContent.find(
                             'tr[data-to="' + buddyJID + '"]'
                         );
+                        var buddyItem = news.roster[buddyGroup][buddyJID];
+                        var buddyText = buddyJID;
+                        if(buddyItem.name)
+                            buddyText =
+                                buddyItem.name + ' <' + buddyText + '>';
                         if(buddyEntry.length < 1){
                             corRosterContent.append(
                                 $('<tr>', {
@@ -255,7 +261,7 @@ var xmppPanel = function(){
                                     'data-from': jid,
                                 }).append(
                                     $('<td>')
-                                        .text(buddyJID)
+                                        .text(buddyText)
                                         .click(
                                             self
                                                 .display
