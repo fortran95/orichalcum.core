@@ -301,10 +301,6 @@ var xmppPanel = function(){
                 functions.xmpp.logout(tr.attr('data-jidmain'));
             },
 
-            onControlSend: function(e){
-                alert($('tr.success[data-to]').length);
-            },
-
             onBuddylistClicked: function(e){
                 var tr = $(e.target).parents('[data-jidmain]');
                 var trRoster = tr.parents('table').find(
@@ -338,13 +334,13 @@ var xmppPanel = function(){
         sendForm.find('[name="send"]').click(function(){
             var receivers = $('tr.success[data-to]');
             var results = [];
-            for(var i=0; i<receivers.length;i++){
-                results.push([
-                    $(receivers[i]).attr('data-to'),
+            var sendtext = sendForm.find('[name="message"]').val().trim();
+            for(var i=0; i<receivers.length;i++)
+                functions.xmpp.send(
                     $(receivers[i]).attr('data-from'),
-                ]);
-            }
-            alert(results);
+                    $(receivers[i]).attr('data-to'),
+                    sendtext
+                );
         });
 
         self.display.refresh();
