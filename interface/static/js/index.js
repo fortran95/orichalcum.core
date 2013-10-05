@@ -28,6 +28,7 @@ var functions = {
             $.ajax({
                 type: "POST",
                 url: '/service/xmpp/' + senderJID + '/send/' + receiverJID,
+                data: {content: message},
                 success: function(e){},
                 dataType: 'text',
             });
