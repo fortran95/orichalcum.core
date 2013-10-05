@@ -437,17 +437,56 @@ module.exports = {
 
             roster: function(stanza){
                 /* giftiger Fussabdruck wegen historisches Grundes hier! */
+                var list = {};
+                var recorded = 0;
                 try{
-                    var list = {'default':{}};
                     var items = stanza.getChildren('item');
                     for(var i=0; i<items.length; i++){
+                        /* constructs new item */
                         var newitem = {
+                            jid:
+                                x.object.getter(
+                                    items[i].attrs,
+                                    'jid'
+                                ),
+                            subscription:
+                                x.object.getter(
+                                    items[i].attrs,
+                                    'subscription',
+                                    'to'
+                                ),
                         };
+                        if(!newitem.jid) continue;
+                        newitem.name =
+                            x.object.getter(
+                                items[i].attrs,
+                                'name',
+                                newitem.jid
+                            );
+                        /* determine group name */
                         var groupName = 'default';
-                        if(list[groupName] == undefined) list[groupName] = {};
-                        //TODO parse and list roster into 'list', then pass it.
+                        var groupChild = items[i].getChild('group');
+                        if(groupChild)
+                            groupName = groupChild.children.join('');
+
+                        /* save to list */
+                        if(list[groupName] == undefined){
+                            list[groupName] = {};
+                            list[groupName][newitem.jid] = newitem;
+                        } else
+                            list[groupName][newitem.jid] = newitem;
+
+                        recorded += 1;
                     }
                 } catch(e){
+                    x.log.error(e.toString());
+                }
+
+                if(recorded > 0){
+                    x.log.notice(recorded + ' items in roster received.');
+                    self.rosterManager.register(list);
+                } else {
+                    x.log.notice('No roster items found.');
                 }
             },
 
@@ -458,6 +497,8 @@ module.exports = {
             _roster: {},
 
             register: function(list){
+                self.rosterManager._roster = list;
+                // TODO more proceeding
             },
 
             presence: function(){

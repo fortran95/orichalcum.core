@@ -7,5 +7,9 @@ module.exports = {
     debug: function(e){
         console.log('[DEBUG] ' + e);
     },
+
+    error: function(e){
+        console.log('[ERROR] ' + e);
+    },
     
 };

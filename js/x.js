@@ -36,6 +36,16 @@ var _x_ = {
 
     },
 
+    object: {
+        getter: function(from, what, iffail){
+            if(iffail == undefined) iffail = false;
+            if(from[what] == undefined)
+                return iffail;
+            else
+                return from[what];
+        },
+    },
+
     communication_modules: {
 
         xmpp: require('node-xmpp'),
